@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Feed - KaffIt</title>
+        <script type="module">
+            import { createApp } from 'https://unpkg.com/petite-vue?module'
+          
+            createApp({
+                get loginorprofile() {
+                    return 'Login'
+                },
+                get user() {
+                    return 'Anon'
+                }
+            }).mount()
+          </script>
+    </head>
+    <body>
+        <div v-scope>
+            <ul>
+                <li><a>Feed</a></li>
+                <li><a>Post</a></li>
+                <li><a href="login">{{ loginorprofile }}</a></li>
+            </ul>
+            <h1>Hey {{ user }}</h1>
+          </div>
+    </body>
+</html>
