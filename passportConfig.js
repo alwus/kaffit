@@ -26,11 +26,11 @@ function initialize (passport) {
         authenticateUser
     ));
 
-    passport.serializeUser((user, done) => done(null, user.uid));
+    passport.serializeUser((user, done) => done(null, user.uuid));
 
     passport.deserializeUser((id, done) => {
         (async () => {
-            const user = await userApi.getUser(id);
+            const user = await userApi.getUserByUuid(id);
             return done(null, user);
         })()
     });

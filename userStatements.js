@@ -21,11 +21,24 @@ async function loginSuccess(handle, password) {
     }
 }
 
-async function getUser(uid) {
+async function getUserByUuid(uuid) {
     try {
         const res = await pool.query(
-            `SELECT * FROM kaffit_app.users WHERE uid = $1`,
-            [uid],
+            `SELECT * FROM kaffit_app.users WHERE uuid = $1`,
+            [uuid],
+        )
+        return res.rows[0];
+    } catch(err) {
+        console.log(err);
+        return false;
+    }
+}
+
+async function getUserByHandle(handle) {
+    try {
+        const res = await pool.query(
+            `SELECT * FROM kaffit_app.users WHERE handle = $1`,
+            [handle],
         )
         return res.rows[0];
     } catch(err) {
@@ -35,4 +48,5 @@ async function getUser(uid) {
 }
 
 module.exports.loginSuccess = loginSuccess;
-module.exports.getUser = getUser;
+module.exports.getUserByUuid = getUserByUuid;
+module.exports.getUserByHandle = getUserByHandle;

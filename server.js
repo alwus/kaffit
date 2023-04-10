@@ -3,6 +3,7 @@ require("dotenv").config();
 const express = require('express');
 const app = express()
 const userApi = require('./userStatements')
+const contentApi = require('./contentStatements')
 const PORT = process.env.PORT || 80;
 const flash = require("express-flash");
 const session = require("express-session");
@@ -25,7 +26,30 @@ app.set('view engine', 'html');
 app.use(express.urlencoded({ extended : false }));
 
 app.get('/feed', checkNotAuthenticated, (req, res) => {
-    res.sendFile('feed.html', {root: 'views'})
+    /*for(media in theAlgorithm.getLatestPosts()) {
+        
+    }*/
+    res.sendFile('feed.html', {root: 'views'});
+});
+
+app.get('/api/feed', checkNotAuthenticated, (req, res) => {
+    (async () => {
+        rows = await contentApi.getLatestPosts();
+        res.send(rows)
+    })();
+    //res.send( { uuid: 9999999, text: "Hallo welt " });
+});
+
+app.get('/api/user/:handle', checkNotAuthenticated, (req, res) => {
+    (async () => {
+        row = await userApi.getUser(req.params.handle);
+        res.send(row)
+    })();
+});
+
+app.get('/media/posts/:file', checkNotAuthenticated, (req, res) => {
+    let file = req.params.file;
+    res.sendFile(file, {root: 'media/posts'});
 });
 
 app.get('/login', checkAuthenticated, (req, res) => {

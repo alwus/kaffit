@@ -3,26 +3,61 @@
     <head>
         <title>Feed - KaffIt</title>
         <script type="module">
-            import { createApp } from 'https://unpkg.com/petite-vue?module'
-          
+            import { createApp } from 'https://unpkg.com/petite-vue?module';
+            
+            function Post(props) {
+                return {
+                    $template: '#post-template',
+                    creator: props.creator,
+                    text: props.text,
+                    // Timestamp and Sticker
+                }
+            }
+
             createApp({
+                handle: "test",
+                posts: [],
                 get loginorprofile() {
                     return 'Login'
                 },
-                get user() {
-                    return 'Anon'
-                }
+                get getuser() {
+                    /*(async () => {
+                        let response = await fetch("/api/user");
+                        let parsed = await response.json();
+                        this.handle = parsed.handle;
+                    })()*/
+                    return this.handle
+                },
+                get fetchposts() {
+                    let res;
+                    fetch("/api/feed")
+                        .then(res => res.json())
+                        .then(data => {
+                            this.posts = data;
+                            return this.posts;
+                        });
+                },
+                Post
             }).mount()
-          </script>
+        </script>
+        <template id ="post-template">
+            <h1>Post by: {{ creator }}</h1>
+            <p>{{ text }}</p>
+        </template>
     </head>
     <body>
         <div v-scope>
-            <ul>
-                <li><a>Feed</a></li>
-                <li><a>Post</a></li>
-                <li><a href="login">{{ loginorprofile }}</a></li>
-            </ul>
-            <h1>Hey {{ user }}</h1>
+            <div id="navbar">
+                <ul>
+                    <li><a>Feed</a></li>
+                    <li><a>Post</a></li>
+                    <li><a href="login">{{ loginorprofile }}</a></li>
+                    <h1>Hey {{ handle }}</h1>
+                </ul>
+            </div>
+            <div id="posts" v-for="post in posts">
+                <div v-scope="Post({ creator: post.creator, text: post.text })"></div>
+            </div>
           </div>
     </body>
 </html>
