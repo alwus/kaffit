@@ -2,6 +2,7 @@
 <html>
     <head>
         <title>Login - KaffIt</title>
+        <link rel="stylesheet" href="/gui/style.css">
         <script type="module">
             import { createApp } from 'https://unpkg.com/petite-vue?module'
           
@@ -16,13 +17,8 @@
           </script>
     </head>
     <body>
-        <div v-scope>
-            <ul>
-                <li><a>Feed</a></li>
-                <li><a>Post</a></li>
-                <li><a href="login">{{ loginorprofile }}</a></li>
-            </ul>
-            <div>
+        <div v-scope class="content">
+            <div class="form">
                 <form action="/login" method ="POST">
                     <label for="handle">Handle:</label>
                     <input type="text" id="handle" name="handle" required><br><br>

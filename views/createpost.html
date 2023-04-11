@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Create Post - KaffIt</title>
+        <link rel="stylesheet" href="/gui/style.css">
+        <script type="module">
+            import { createApp } from 'https://unpkg.com/petite-vue?module'
+          
+            createApp({
+                
+            }).mount()
+          </script>
+    </head>
+    <body>
+        <div v-scope class="content">
+            <div id=#navbar>
+                <ul>
+                    <li><a href="feed">Feed</a></li>
+                    <li><a href="createpost">Post</a></li>
+                    <li><a href="login">Profile</a></li>
+                </ul>
+            </div>
+            <div class="form">
+                <form action="/createpost" method ="POST">
+                    <label for="text">Text:</label>
+                    <input type="text" id="text" name="text" class="bigtextfield" required><br><br>
+                    <input type="submit" value="Create Post">
+                </form>
+            </div>
+        </div>
+    </body>
+</html>

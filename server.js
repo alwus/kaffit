@@ -25,11 +25,26 @@ app.use(passport.session());
 app.set('view engine', 'html');
 app.use(express.urlencoded({ extended : false }));
 
+app.use('/gui', express.static(__dirname + '/gui'));
+
 app.get('/feed', checkNotAuthenticated, (req, res) => {
     /*for(media in theAlgorithm.getLatestPosts()) {
         
     }*/
     res.sendFile('feed.html', {root: 'views'});
+});
+
+app.get('/createpost', checkNotAuthenticated, (req, res) => {
+    res.sendFile('createpost.html', {root: 'views'});
+});
+
+app.post('/createpost', checkNotAuthenticated, (req, res) => {
+    console.log(req.user.uuid);
+    console.log(req.body.text);
+    (async () => {
+        await contentApi.createPost(req.user.uuid, req.body.text);
+    })();
+    return res.redirect("/feed");
 });
 
 app.get('/api/feed', checkNotAuthenticated, (req, res) => {
@@ -47,9 +62,9 @@ app.get('/api/user/:handle', checkNotAuthenticated, (req, res) => {
     })();
 });
 
-app.get('/media/posts/:file', checkNotAuthenticated, (req, res) => {
+app.get('/images/:file', checkNotAuthenticated, (req, res) => {
     let file = req.params.file;
-    res.sendFile(file, {root: 'media/posts'});
+    res.sendFile(file, {root: 'media/images'});
 });
 
 app.get('/login', checkAuthenticated, (req, res) => {

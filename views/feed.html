@@ -2,6 +2,7 @@
 <html>
     <head>
         <title>Feed - KaffIt</title>
+        <link rel="stylesheet" href="/gui/style.css">
         <script type="module">
             import { createApp } from 'https://unpkg.com/petite-vue?module';
             
@@ -10,8 +11,16 @@
                     $template: '#post-template',
                     creator: props.creator,
                     text: props.text,
+                    timestamp: correctTimestamp(props.timestamp)
                     // Timestamp and Sticker
                 }
+            }
+
+            function correctTimestamp(timestamp) {
+                let year = timestamp.substring(0,4);
+                let month = timestamp.substring(5,7);
+                let day = timestamp.substring(8,10);
+                return `${day}.${month}.${year}`;
             }
 
             createApp({
@@ -41,22 +50,22 @@
             }).mount()
         </script>
         <template id ="post-template">
-            <h1>Post by: {{ creator }}</h1>
+            <p ><a href="" class="username">{{ creator }}</a></p>
+            <p>{{ timestamp }}</p>
             <p>{{ text }}</p>
         </template>
     </head>
     <body>
-        <div v-scope>
-            <div id="navbar">
+        <div v-scope class="content">
+            <div id=#navbar>
                 <ul>
-                    <li><a>Feed</a></li>
-                    <li><a>Post</a></li>
-                    <li><a href="login">{{ loginorprofile }}</a></li>
-                    <h1>Hey {{ handle }}</h1>
+                    <li><a href="feed">Feed</a></li>
+                    <li><a href="createpost">Post</a></li>
+                    <li><a href="login">Profile</a></li>
                 </ul>
             </div>
             <div id="posts" v-for="post in posts">
-                <div v-scope="Post({ creator: post.creator, text: post.text })"></div>
+                <div class="contentbox" v-scope="Post({ creator: post.creator, text: post.text, timestamp: post.timestamp })"></div>
             </div>
           </div>
     </body>
