@@ -1,7 +1,8 @@
 # kaffit
 
-### Das Social-Network für alle Kaffler!
-Mit petite-PEVN Stack!
+Das Social-Network für alle Kaffler!
+
+Mit petite-PEVN Stack! (oder so)
 
 ## Frontend
 
