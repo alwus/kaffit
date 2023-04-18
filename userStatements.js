@@ -47,6 +47,22 @@ async function getUserByHandle(handle) {
     }
 }
 
+async function setPpFormat(uuid, format) {
+    try {
+        const res = await pool.query(
+            `UPDATE kaffit_app.users
+            SET ppformat = $2
+            WHERE uuid = $1`,
+            [uuid, format],
+        )
+        return res.rows[0];
+    } catch(err) {
+        console.log(err);
+        return false;
+    }
+}
+
 module.exports.loginSuccess = loginSuccess;
 module.exports.getUserByUuid = getUserByUuid;
 module.exports.getUserByHandle = getUserByHandle;
+module.exports.setPpFormat = setPpFormat;

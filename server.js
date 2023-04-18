@@ -8,6 +8,7 @@ const PORT = process.env.PORT || 80;
 const flash = require("express-flash");
 const session = require("express-session");
 const passport = require("passport");
+const fileUpload = require('express-fileupload');
 
 const initPassport = require('./passportConfig');
 initPassport(passport);
@@ -25,6 +26,15 @@ app.use(passport.session());
 app.set('view engine', 'html');
 app.use(express.urlencoded({ extended : false }));
 
+app.use(
+    fileUpload({
+        limits: {
+            fileSize: 10000000, // Around 10MB
+        },
+        abortOnLimit: true,
+    })
+);
+
 app.use('/gui', express.static(__dirname + '/gui'));
 
 app.get('/feed', checkNotAuthenticated, (req, res) => {
@@ -40,9 +50,9 @@ app.get('/createpost', checkNotAuthenticated, (req, res) => {
 
 app.post('/createpost', checkNotAuthenticated, (req, res) => {
     console.log(req.user.uuid);
-    console.log(req.body.text);
+    console.log(req.body.textArea);
     (async () => {
-        await contentApi.createPost(req.user.uuid, req.body.text);
+        await contentApi.createPost(req.user.uuid, req.body.textArea);
     })();
     return res.redirect("/feed");
 });
@@ -65,6 +75,37 @@ app.get('/api/user/:handle', checkNotAuthenticated, (req, res) => {
 app.get('/images/:file', checkNotAuthenticated, (req, res) => {
     let file = req.params.file;
     res.sendFile(file, {root: 'media/images'});
+});
+
+app.get('/profilepictures/:handle', checkNotAuthenticated, (req, res) => {
+    (async () => {
+        row = await contentApi.getPpFormat(req.params.handle);
+        console.log(row);
+        if(row.ppformat) {
+            console.log(`${row.uuid}.${row.ppformat}`);
+            try {
+                res.sendFile(`${row.uuid}.${row.ppformat}`, {root: 'media/profilepictures'});
+            } catch(error) {
+                res.sendFile('ppdefault.png', {root: 'media/profilepictures'});
+            }
+        } else {
+            res.sendFile('ppdefault.png', {root: 'media/profilepictures'});
+        }
+    })();
+});
+
+app.get('/editprofile', checkNotAuthenticated, (req, res) => {
+    res.sendFile('editprofile.html', {root: 'views'})
+});
+
+app.post('/editprofile', checkNotAuthenticated, (req, res) => {  
+    const { image } = req.files;
+    if(image) {
+        const format = image.mimetype.split('/')[1]; //select after the / of e.g. image/png
+        userApi.setPpFormat(req.user.uuid, format)
+        image.mv(__dirname + '/media/profilepictures/' + req.user.uuid + '.' + format)
+    }
+    res.redirect("/editprofile");
 });
 
 app.get('/login', checkAuthenticated, (req, res) => {

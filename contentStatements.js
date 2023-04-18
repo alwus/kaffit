@@ -3,7 +3,7 @@ const { pool } = require('./dbConfig');
 async function getLatestPosts() {
     try {
         const res = await pool.query(
-            `SELECT handle AS creator, text, timestamp
+            `SELECT handle, p.user AS creator, text, timestamp, ppformat
             FROM kaffit_app.posts p
             JOIN kaffit_app.users u
             ON p.user = u.uuid
@@ -28,6 +28,19 @@ async function getPost(uuid) {
         const res = await pool.query(
             `SELECT * FROM kaffit_app.posts WHERE uuid = $1`,
             [uuid],
+        )
+        return res.rows[0];
+    } catch(err) {
+        console.log(err);
+        return false;
+    }
+}
+
+async function getPpFormat(handle) {
+    try {
+        const res = await pool.query(
+            `SELECT uuid, ppformat FROM kaffit_app.users WHERE handle = $1`,
+            [handle],
         )
         return res.rows[0];
     } catch(err) {
@@ -66,3 +79,4 @@ async function createPost(user, text, ...image) {
 module.exports.createPost = createPost;
 module.exports.getLatestPosts = getLatestPosts;
 module.exports.getPost = getPost;
+module.exports.getPpFormat = getPpFormat;
