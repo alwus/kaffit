@@ -1,4 +1,4 @@
-# kaffit
+# <img src="https://github.com/alwus/kaffit/blob/main/gui/logo.png"  width="40" height="40"> Kaffit 
 
 Das Social-Network für alle Kaffler!
 
