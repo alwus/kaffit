@@ -3,7 +3,7 @@ const { pool } = require('./dbConfig');
 async function getLatestPosts() {
     try {
         const res = await pool.query(
-            `SELECT handle, p.user AS creator, text, timestamp, ppformat
+            `SELECT p.uuid, handle, p.user AS creator, text, timestamp, ppformat
             FROM kaffit_app.posts p
             JOIN kaffit_app.users u
             ON p.user = u.uuid
@@ -26,8 +26,45 @@ async function getLatestPosts() {
 async function getPost(uuid) {
     try {
         const res = await pool.query(
-            `SELECT * FROM kaffit_app.posts WHERE uuid = $1`,
+            `SELECT p.uuid, handle, p.user AS creator, text, timestamp, ppformat
+            FROM kaffit_app.posts p
+            JOIN kaffit_app.users u
+            ON p.user = u.uuid
+            WHERE p.uuid = $1`,
             [uuid],
+        )
+        return res.rows[0];
+    } catch(err) {
+        console.log(err);
+        return false;
+    }
+}
+
+async function getComments(post) {
+    try {
+        const res = await pool.query(
+            `SELECT handle, text, timestamp
+            FROM kaffit_app.comments c
+            JOIN kaffit_app.users u
+            ON c.user = u.uuid
+            WHERE post = $1
+            ORDER BY timestamp DESC`,
+            [post],
+        )
+        console.log(res.rows);
+        return res.rows;
+    } catch(err) {
+        console.log(err);
+        return false;
+    }
+}
+
+async function createComment(user, post, text) {
+    try {
+        const res = await pool.query(
+            `INSERT INTO kaffit_app.comments ("user", "post", "text")
+            VALUES ($1, $2, $3)`,
+            [user, post, text],
         )
         return res.rows[0];
     } catch(err) {
@@ -76,7 +113,10 @@ async function createPost(user, text, ...image) {
     }
 }
 
+module.exports.createComment = createComment;
+module.exports.getPost = getPost;
 module.exports.createPost = createPost;
 module.exports.getLatestPosts = getLatestPosts;
 module.exports.getPost = getPost;
 module.exports.getPpFormat = getPpFormat;
+module.exports.getComments = getComments;

@@ -10,23 +10,18 @@
         <script type="module">
             import { createApp } from 'https://unpkg.com/petite-vue?module';
             import Navbar from '/gui/navbar.js';
+            import correctTimestamp from  '/gui/util.js';
 
             function Post(props) {
-                console.log(props.ppformat);
+                console.log(props.uuid);
                 return {
                     $template: '#post-template',
+                    uuid: props.uuid,
                     handle: props.handle,
                     text: props.text,
                     timestamp: correctTimestamp(props.timestamp)
                     // Timestamp and Sticker
                 }
-            }
-
-            function correctTimestamp(timestamp) {
-                let year = timestamp.substring(0,4);
-                let month = timestamp.substring(5,7);
-                let day = timestamp.substring(8,10);
-                return `${day}.${month}.${year}`;
             }
 
             createApp({
@@ -55,12 +50,11 @@
                     <div class="pb-3 mb-0 small lh-sm  w-100">
                         <div class="d-flex justify-content-between">
                           <strong class="text-gray-dark">{{ handle }}</strong>
-                          <a href="#">Follow</a>
+                          <a :href="`/post?id=${uuid}`">Öffnen</a>
                         </div>
                         <span class="d-block">{{ timestamp }}</span>
                 </div>
             </div>
-
             <div class="d-flex text-body-secondary pt-3">
                 <p style="white-space: pre-wrap;" class="pb-3 mb-0 small lh-sm w-100">{{ text }}</p>
             </div>
@@ -72,7 +66,7 @@
             <div v-scope="Navbar({ page: 'Home' })"></div>
             <main class="container">
                 <div class="row" id="posts" v-for="post in posts">
-                    <div class="col" v-scope="Post({ handle: post.handle, text: post.text, timestamp: post.timestamp, ppformat: post.ppformat })"></div>
+                    <div class="col" v-scope="Post({ uuid: post.uuid, handle: post.handle, text: post.text, timestamp: post.timestamp, ppformat: post.ppformat })"></div>
                 </div>
             </main>
     </body>

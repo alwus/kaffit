@@ -37,6 +37,10 @@ app.use(
 
 app.use('/gui', express.static(__dirname + '/gui'));
 
+app.get('/', checkNotAuthenticated, (req, res) => {
+    res.redirect('/feed');
+});
+
 app.get('/feed', checkNotAuthenticated, (req, res) => {
     /*for(media in theAlgorithm.getLatestPosts()) {
         
@@ -49,12 +53,24 @@ app.get('/createpost', checkNotAuthenticated, (req, res) => {
 });
 
 app.post('/createpost', checkNotAuthenticated, (req, res) => {
-    console.log(req.user.uuid);
-    console.log(req.body.textArea);
+    try {
+        console.log(req.user.uuid);
+        console.log(req.body.textArea);
+        (async () => {
+            await contentApi.createPost(req.user.uuid, req.body.textArea);
+        })();
+        return res.redirect("/feed");
+    } catch(error) {
+        res.sendStatus(500);
+        return res.redirect("/feed");
+    }
+});
+
+app.post('/comment/:post', checkNotAuthenticated, (req, res) => {
     (async () => {
-        await contentApi.createPost(req.user.uuid, req.body.textArea);
-    })();
-    return res.redirect("/feed");
+        contentApi.createComment(req.user.uuid, req.params.post, req.body.textArea);
+    })()
+    res.redirect(`/post?id=${req.params.post}`);
 });
 
 app.get('/api/feed', checkNotAuthenticated, (req, res) => {
@@ -66,30 +82,68 @@ app.get('/api/feed', checkNotAuthenticated, (req, res) => {
 });
 
 app.get('/api/user/:handle', checkNotAuthenticated, (req, res) => {
-    (async () => {
-        row = await userApi.getUser(req.params.handle);
-        res.send(row)
-    })();
+    try {
+        (async () => {
+            row = await userApi.getUser(req.params.handle);
+            res.send(row)
+        })();
+    } catch(error) {
+        res.sendStatus(404);
+    }
+});
+
+app.get('/api/post/:id', checkNotAuthenticated, (req, res) => {
+    try {
+        (async () => {
+            row = await contentApi.getPost(req.params.id);
+            res.send(row)
+        })();
+    } catch(error) {
+        res.sendStatus(404);
+    }
+});
+
+app.get('/api/comments/:post', checkNotAuthenticated, (req, res) => {
+    try {
+        (async () => {
+            row = await contentApi.getComments(req.params.post);
+            res.send(row)
+        })();
+    } catch(error) {
+        res.sendStatus(404);
+    }
+});
+
+app.get('/api/me', checkNotAuthenticated, (req, res) => {
+    res.send(req.user.handle);
 });
 
 app.get('/images/:file', checkNotAuthenticated, (req, res) => {
-    let file = req.params.file;
-    res.sendFile(file, {root: 'media/images'});
+    try {
+        let file = req.params.file;
+        res.sendFile(file, {root: 'media/images'});
+    } catch(error) {
+        res.sendStatus(404);
+    }
 });
 
 app.get('/profilepictures/:handle', checkNotAuthenticated, (req, res) => {
     (async () => {
-        row = await contentApi.getPpFormat(req.params.handle);
-        console.log(row);
-        if(row.ppformat) {
-            console.log(`${row.uuid}.${row.ppformat}`);
-            try {
-                res.sendFile(`${row.uuid}.${row.ppformat}`, {root: 'media/profilepictures'});
-            } catch(error) {
+        try {
+            row = await contentApi.getPpFormat(req.params.handle);
+            console.log(row);
+            if(row.ppformat) {
+                console.log(`${row.uuid}.${row.ppformat}`);
+                try {
+                    res.sendFile(`${row.uuid}`, {root: 'media/profilepictures'});
+                } catch(error) {
+                    res.sendFile('ppdefault.png', {root: 'media/profilepictures'});
+                }
+            } else {
                 res.sendFile('ppdefault.png', {root: 'media/profilepictures'});
             }
-        } else {
-            res.sendFile('ppdefault.png', {root: 'media/profilepictures'});
+        } catch(error) {
+            res.sendStatus(404);
         }
     })();
 });
@@ -106,6 +160,10 @@ app.post('/editprofile', checkNotAuthenticated, (req, res) => {
         image.mv(__dirname + '/media/profilepictures/' + req.user.uuid + '.' + format)
     }
     res.redirect("/editprofile");
+});
+
+app.get('/post', checkNotAuthenticated, (req, res) => {
+    res.sendFile('post.html', {root: 'views'})
 });
 
 app.get('/login', checkAuthenticated, (req, res) => {

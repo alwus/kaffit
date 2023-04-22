@@ -4,6 +4,7 @@ export default function Navbar(props) {
                     <nav class="navbar navbar-expand-lg fixed-top navbar-dark bg-dark">
                         <div class="container-fluid">
                             <a class="navbar-brand" href="#">
+                                <img src="/gui/logo.png" width="30" height="30" class="d-inline-block align-top" alt="">
                                 Kaffit
                             </a>
                             <ul class="navbar-nav d-flex flex-row me-1">
