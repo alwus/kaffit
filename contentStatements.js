@@ -3,7 +3,7 @@ const { pool } = require('./dbConfig');
 async function getLatestPosts() {
     try {
         const res = await pool.query(
-            `SELECT p.uuid, handle, p.user AS creator, text, timestamp, ppformat
+            `SELECT p.uuid, handle, text, timestamp, image
             FROM kaffit_app.posts p
             JOIN kaffit_app.users u
             ON p.user = u.uuid
@@ -26,7 +26,7 @@ async function getLatestPosts() {
 async function getPost(uuid) {
     try {
         const res = await pool.query(
-            `SELECT p.uuid, handle, p.user AS creator, text, timestamp, ppformat
+            `SELECT p.uuid, handle, text, timestamp, ppformat
             FROM kaffit_app.posts p
             JOIN kaffit_app.users u
             ON p.user = u.uuid
@@ -86,26 +86,12 @@ async function getPpFormat(handle) {
     }
 }
 
-async function createImage() {
-    try {
-        const res = await pool.query(
-            `INSERT INTO kaffit_app.posts (text, image)
-            VALUES ()`,
-            [text],
-        )
-        return res.rows[0];
-    } catch(err) {
-        console.log(err);
-        return false;
-    }
-}
-
-async function createPost(user, text, ...image) {
+async function createPost(user, text, image) {
     try {
         await pool.query(
-            `INSERT INTO kaffit_app.posts("user", "text")
-            VALUES ($1, $2)`,
-            [user, text]
+            `INSERT INTO kaffit_app.posts("user", "text", "image")
+            VALUES ($1, $2, $3)`,
+            [user, text, image]
         );
     } catch(err) {
         console.log(err);

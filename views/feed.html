@@ -19,9 +19,19 @@
                     uuid: props.uuid,
                     handle: props.handle,
                     text: props.text,
-                    timestamp: correctTimestamp(props.timestamp)
+                    timestamp: correctTimestamp(props.timestamp),
+                    image: props.image,
+                    fullSize: false
                     // Timestamp and Sticker
                 }
+            }
+
+            function getW(fullSize) {
+                return fullSize ? "100%" : "160px";
+            }
+
+            function getH(fullSize) {
+                return fullSize ? "100%" : "160px";
             }
 
             createApp({
@@ -39,7 +49,9 @@
                         });
                 },
                 Navbar,
-                Post
+                Post,
+                getH,
+                getW
             }).mount()
         </script>
 
@@ -53,10 +65,12 @@
                           <a :href="`/post?id=${uuid}`">Öffnen</a>
                         </div>
                         <span class="d-block">{{ timestamp }}</span>
+                    </div>
                 </div>
-            </div>
-            <div class="d-flex text-body-secondary pt-3">
-                <p style="white-space: pre-wrap;" class="pb-3 mb-0 small lh-sm w-100">{{ text }}</p>
+                <div class="d-inline-block w-100">
+                    <img v-if="image" @click="fullSize = !fullSize" class="float-start me-2 rounded mt-3" :style="{ 'max-height': getH(fullSize), 'max-width': getW(fullSize) }" :src="`/image/${image}`" role="img" aria-label="Placeholder: 32x32" preserveAspectRatio="xMidYMid slice" focusable="false"><title>Placeholder</title><rect width="50%" height="50%" fill="#007bff"></rect></img>
+                    <p class="pb-3 mb-0 small lh-sm text-body-secondary pt-3">{{ text }}</p>
+                </div>
             </div>
         </template>
 
@@ -66,7 +80,7 @@
             <div v-scope="Navbar({ page: 'Home' })"></div>
             <main class="container">
                 <div class="row" id="posts" v-for="post in posts">
-                    <div class="col" v-scope="Post({ uuid: post.uuid, handle: post.handle, text: post.text, timestamp: post.timestamp, ppformat: post.ppformat })"></div>
+                    <div class="col" v-scope="Post({ uuid: post.uuid, handle: post.handle, text: post.text, timestamp: post.timestamp, image: post.image })"></div>
                 </div>
             </main>
     </body>

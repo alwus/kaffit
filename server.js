@@ -29,7 +29,7 @@ app.use(express.urlencoded({ extended : false }));
 app.use(
     fileUpload({
         limits: {
-            fileSize: 10000000, // Around 10MB
+            fileSize: 2000000, // Around 10MB
         },
         abortOnLimit: true,
     })
@@ -53,17 +53,28 @@ app.get('/createpost', checkNotAuthenticated, (req, res) => {
 });
 
 app.post('/createpost', checkNotAuthenticated, (req, res) => {
+    let imagelink = null;
     try {
         console.log(req.user.uuid);
         console.log(req.body.textArea);
-        (async () => {
-            await contentApi.createPost(req.user.uuid, req.body.textArea);
-        })();
-        return res.redirect("/feed");
+        const { image } = req.files;
+        console.log(image);
+        if(image) {
+            const format = image.mimetype.split('/')[1]; //select after the / of e.g. image/png
+            const checksum = image.md5;
+            imagelink = `${checksum}.${format}`;
+            console.log(imagelink);
+            image.mv(__dirname + '/media/images/' + imagelink)
+        
+        } else {
+            const image = null;
+        }
     } catch(error) {
-        res.sendStatus(500);
-        return res.redirect("/feed");
     }
+    (async () => {
+        await contentApi.createPost(req.user.uuid, req.body.textArea, imagelink);
+    })();
+    return res.redirect("/feed");
 });
 
 app.post('/comment/:post', checkNotAuthenticated, (req, res) => {
@@ -118,7 +129,7 @@ app.get('/api/me', checkNotAuthenticated, (req, res) => {
     res.send(req.user.handle);
 });
 
-app.get('/images/:file', checkNotAuthenticated, (req, res) => {
+app.get('/image/:file', checkNotAuthenticated, (req, res) => {
     try {
         let file = req.params.file;
         res.sendFile(file, {root: 'media/images'});
@@ -153,13 +164,17 @@ app.get('/editprofile', checkNotAuthenticated, (req, res) => {
 });
 
 app.post('/editprofile', checkNotAuthenticated, (req, res) => {  
-    const { image } = req.files;
-    if(image) {
-        const format = image.mimetype.split('/')[1]; //select after the / of e.g. image/png
-        userApi.setPpFormat(req.user.uuid, format)
-        image.mv(__dirname + '/media/profilepictures/' + req.user.uuid + '.' + format)
+    try {
+        const { image } = req.files;
+        if(image) {
+            const format = image.mimetype.split('/')[1]; //select after the / of e.g. image/png
+            userApi.setPpFormat(req.user.uuid, format)
+            image.mv(__dirname + '/media/profilepictures/' + req.user.uuid + '.' + format)
+        }
+        res.redirect("/editprofile");
+    } catch(error) {
+        res.redirect("/editprofile");
     }
-    res.redirect("/editprofile");
 });
 
 app.get('/post', checkNotAuthenticated, (req, res) => {

@@ -23,12 +23,12 @@
             <div class="jumbotron">
                 <h1 class="h3 fw-normal mb-3 pt-3">Erstelle einen Post</h1>
                 <div class="form">
-                    <form action="/createpost" method ="POST">
+                    <form action="/createpost" method ="POST" enctype="multipart/form-data">
                         <div class="form-group">
                             <textarea class="form-control" id="textArea" name="textArea" maxlength="420"></textarea>
                         </div>
                         <div class="form-group mb-3 pt-3">
-                            <input type="file" class="form-control-file" id="exampleFormControlFile1">
+                            <input type="file" class="form-control-file" id="image" name="image">
                         </div>
                         <button type="submit" class="btn btn-primary">Posten</button>
                     </form>
