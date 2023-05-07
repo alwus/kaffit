@@ -141,16 +141,11 @@ app.get('/image/:file', checkNotAuthenticated, (req, res) => {
 app.get('/profilepictures/:handle', checkNotAuthenticated, (req, res) => {
     (async () => {
         try {
-            row = await contentApi.getPpFormat(req.params.handle);
-            console.log(row);
-            if(row.ppformat) {
-                console.log(`${row.uuid}.${row.ppformat}`);
-                try {
-                    res.sendFile(`${row.uuid}`, {root: 'media/profilepictures'});
-                } catch(error) {
-                    res.sendFile('ppdefault.png', {root: 'media/profilepictures'});
-                }
-            } else {
+            let user = await userApi.getUserByHandle(req.params.handle);
+            console.log(user.uuid);
+            try {
+                res.sendFile(`${user.uuid}`, {root: 'media/profilepictures'});
+            } catch(error) {
                 res.sendFile('ppdefault.png', {root: 'media/profilepictures'});
             }
         } catch(error) {
@@ -167,9 +162,7 @@ app.post('/editprofile', checkNotAuthenticated, (req, res) => {
     try {
         const { image } = req.files;
         if(image) {
-            const format = image.mimetype.split('/')[1]; //select after the / of e.g. image/png
-            userApi.setPpFormat(req.user.uuid, format)
-            image.mv(__dirname + '/media/profilepictures/' + req.user.uuid + '.' + format)
+            image.mv(__dirname + '/media/profilepictures/' + req.user.uuid);
         }
         res.redirect("/editprofile");
     } catch(error) {
