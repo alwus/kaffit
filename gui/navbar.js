@@ -8,13 +8,13 @@ export default function Navbar(props) {
                                 Kaffit
                             </a>
                             <ul class="navbar-nav d-flex flex-row me-1">
-                                <li class="nav-item me-5 me-lg-0">
+                                <li class="nav-item me-5">
                                     <a class="nav-link text-white" href="/feed"><i class="bi bi-house-fill" style="font-size: 20px"></i></a>
                                 </li>
-                                <li class="nav-item me-5 me-lg-0">
+                                <li class="nav-item me-5">
                                     <a class="nav-link text-white" href="/createpost"><i class="bi bi-plus-circle-fill" style="font-size: 20px"></i></a>
                                 </li>
-                                <li class="nav-item me-lg-0">
+                                <li class="nav-item">
                                     <a class="nav-link text-white" href="/editprofile"><i class="bi bi-person-fill" style="font-size: 20px"></i></a>
                                 </li>
                             </ul>

@@ -4,7 +4,7 @@ const express = require('express');
 const app = express()
 const userApi = require('./userStatements')
 const contentApi = require('./contentStatements')
-const PORT = process.env.PORT || 80;
+const PORT = process.env.PORT || 10000;
 const flash = require("express-flash");
 const session = require("express-session");
 const passport = require("passport");
@@ -59,7 +59,7 @@ app.post('/createpost', checkNotAuthenticated, (req, res) => {
         console.log(req.body.textArea);
         const { image } = req.files;
         console.log(image);
-        if(image) {
+        if(image && image.mimetype.split('/')[0] === "image") {
             const format = image.mimetype.split('/')[1]; //select after the / of e.g. image/png
             const checksum = image.md5;
             imagelink = `${checksum}.${format}`;
@@ -176,6 +176,10 @@ app.get('/post', checkNotAuthenticated, (req, res) => {
 
 app.get('/login', checkAuthenticated, (req, res) => {
     res.sendFile('login.html', {root: 'views'})
+});
+
+app.get('/register', checkAuthenticated, (req, res) => {
+    res.sendFile('register.html', {root: 'views'});
 });
 
 app.post('/login', passport.authenticate("local", {

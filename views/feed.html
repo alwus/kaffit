@@ -27,7 +27,7 @@
             }
 
             function getW(fullSize) {
-                return fullSize ? "100%" : "160px";
+                return fullSize ? "100%" : "auto";
             }
 
             function getH(fullSize) {
@@ -68,7 +68,7 @@
                     </div>
                 </div>
                 <div class="d-inline-block w-100">
-                    <img v-if="image" @click="fullSize = !fullSize" class="float-start me-2 rounded mt-3" :style="{ 'max-height': getH(fullSize), 'max-width': getW(fullSize) }" :src="`/image/${image}`" role="img" aria-label="Placeholder: 32x32" preserveAspectRatio="xMidYMid slice" focusable="false"><title>Placeholder</title><rect width="50%" height="50%" fill="#007bff"></rect></img>
+                    <img v-if="image" @click="fullSize = !fullSize" class="float-start me-2 rounded mt-3" :style="{ 'max-height': getH(fullSize), 'width': getW(fullSize) }" :src="`/image/${image}`" role="img" aria-label="Placeholder: 32x32" preserveAspectRatio="xMidYMid slice" focusable="false"><title>Placeholder</title><rect width="50%" height="50%" fill="#007bff"></rect></img>
                     <p class="pb-3 mb-0 small lh-sm text-body-secondary pt-3" style="white-space: pre-wrap;">{{ text }}</p>
                 </div>
             </div>
