@@ -23,10 +23,21 @@
                 }
             }
 
+            function getW(fullSize) {
+                return fullSize ? "100%" : "auto";
+            }
+
+            function getH(fullSize) {
+                return fullSize ? "100%" : "160px";
+            }
+
             createApp({
                 post: null,
                 comments: [],
                 showCommentField: false,
+                fullSize: false,
+                getW,
+                getH,
                 get fetchpost() {
                     const urlParams = new URLSearchParams(window.location.search);
                     const id = urlParams.get('id');
@@ -35,8 +46,8 @@
                     fetch(`/api/post/${id}`)
                         .then(res => res.json())
                         .then(data => {
-                            console.log(data);
                             this.post = data;
+                            console.log(data);
                             return data;
                         });
                 },
@@ -48,8 +59,8 @@
                     fetch(`/api/comments/${id}`)
                         .then(res => res.json())
                         .then(data => {
-                            console.log(data);
                             this.comments = data;
+                            console.log(data);
                             return data;
                         });
                 },
@@ -92,13 +103,15 @@
                     <img class="flex-shrink-0 me-2 rounded" width="32" height="32" :src="`/profilepictures/${post.handle}`" role="img" aria-label="Placeholder: 32x32" preserveAspectRatio="xMidYMid slice" focusable="false"><title>Placeholder</title><rect width="100%" height="100%" fill="#007bff"></rect></img>
                     <div class="pb-3 mb-0 small lh-sm  w-100">
                         <div class="d-flex justify-content-between">
-                            <strong class="text-gray-dark">{{ post.handle }}</strong>
+                          <strong class="text-gray-dark">{{ post.handle }}</strong>
+                          <a :href="`/post?id=${uuid}`">Öffnen</a>
                         </div>
-                        <span class="d-block">{{ correctTimestamp(post.timestamp) }}</span>
+                        <span class="d-block">{{ post.timestamp }}</span>
                     </div>
                 </div>
-                <div class="d-flex text-body-secondary pt-3">
-                    <p style="white-space: pre-wrap;" class="pb-3 mb-0 small lh-sm w-100">{{ post.text }}</p>
+                <div class="d-inline-block w-100">
+                    <img v-if="post.image" @click="fullSize = !fullSize" class="float-start me-2 rounded mt-3" :style="{ 'max-height': getH(fullSize), 'width': getW(fullSize) }" :src="`/image/${post.image}`" role="img" aria-label="Placeholder: 32x32" preserveAspectRatio="xMidYMid slice" focusable="false"><title>Placeholder</title><rect width="50%" height="50%" fill="#007bff"></rect></img>
+                    <p class="pb-3 mb-0 small lh-sm text-body-secondary pt-3" style="white-space: pre-wrap;">{{ post.text }}</p>
                 </div>
             </div>
             <div class="d-flex justify-content-between mb-3">

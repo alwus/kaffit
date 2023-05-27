@@ -26,7 +26,7 @@ async function getLatestPosts() {
 async function getPost(uuid) {
     try {
         const res = await pool.query(
-            `SELECT p.uuid, handle, text, timestamp, ppformat
+            `SELECT p.uuid, handle, text, timestamp, image
             FROM kaffit_app.posts p
             JOIN kaffit_app.users u
             ON p.user = u.uuid
