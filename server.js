@@ -2,8 +2,8 @@ require("dotenv").config();
 
 const express = require('express');
 const app = express()
-const userApi = require('./userStatements')
-const content = require('./contentStatements')
+const userApi = require('./src/userStatements')
+const content = require('./src/contentStatements')
 const PORT = process.env.PORT || 10000;
 const flash = require("express-flash");
 const session = require("express-session");
@@ -12,7 +12,7 @@ const fileUpload = require('express-fileupload');
 const uuid = require("uuid");
 const crypto = require("crypto");
 
-const initPassport = require('./passportConfig');
+const initPassport = require('./src/passportConfig');
 initPassport(passport);
 
 app.use(
