@@ -1,108 +1,40 @@
-const { pool } = require('./dbConfig');
+const { db } = require('./dbConfig');
 
-async function getLatestPosts() {
-    try {
-        const res = await pool.query(
-            `SELECT p.uuid, handle, text, timestamp, image
-            FROM kaffit_app.posts p
-            JOIN kaffit_app.users u
-            ON p.user = u.uuid
-            ORDER BY timestamp DESC`
+const latestPosts = db.prepare(
+    `SELECT p.uuid, handle, text, timestamp, image
+    FROM posts p
+    JOIN users u
+    ON p.user = u.uuid
+    ORDER BY timestamp DESC
+    LIMIT 5
+    OFFSET ((?-1)*5)`
+);
 
-        )
-        if(res.rows.length > 0) {
-            console.log(res.rows);
-            return res.rows;
-        } else {
-            console.log('no rows');
-            return false;
-        }
-    } catch(err) {
-        console.log(err);
-        return false;
-    }
-}
+const post = db.prepare(
+    `SELECT p.uuid, handle, text, timestamp, image
+    FROM posts p
+    JOIN users u
+    ON p.user = u.uuid
+    WHERE p.uuid = ?`
+);
 
-async function getPost(uuid) {
-    try {
-        const res = await pool.query(
-            `SELECT p.uuid, handle, text, timestamp, image
-            FROM kaffit_app.posts p
-            JOIN kaffit_app.users u
-            ON p.user = u.uuid
-            WHERE p.uuid = $1`,
-            [uuid],
-        )
-        return res.rows[0];
-    } catch(err) {
-        console.log(err);
-        return false;
-    }
-}
+const comments = db.prepare(
+    `SELECT handle, text, timestamp
+    FROM comments c
+    JOIN users u
+    ON c.user = u.uuid
+    WHERE post = ?
+    ORDER BY timestamp DESC`
+);
 
-async function getComments(post) {
-    try {
-        const res = await pool.query(
-            `SELECT handle, text, timestamp
-            FROM kaffit_app.comments c
-            JOIN kaffit_app.users u
-            ON c.user = u.uuid
-            WHERE post = $1
-            ORDER BY timestamp DESC`,
-            [post],
-        )
-        console.log(res.rows);
-        return res.rows;
-    } catch(err) {
-        console.log(err);
-        return false;
-    }
-}
+const createComment = db.prepare(
+    `INSERT INTO comments ("user", "post", "text") 
+    VALUES (?, ?, ?)`
+);
 
-async function createComment(user, post, text) {
-    try {
-        const res = await pool.query(
-            `INSERT INTO kaffit_app.comments ("user", "post", "text")
-            VALUES ($1, $2, $3)`,
-            [user, post, text],
-        )
-        return res.rows[0];
-    } catch(err) {
-        console.log(err);
-        return false;
-    }
-}
+const createPost = db.prepare(
+    `INSERT INTO posts("uuid", "user", "text", "image")
+    VALUES (?, ?, ?, ?)`
+);
 
-async function getPpFormat(handle) {
-    try {
-        const res = await pool.query(
-            `SELECT uuid, ppformat FROM kaffit_app.users WHERE handle = $1`,
-            [handle],
-        )
-        return res.rows[0];
-    } catch(err) {
-        console.log(err);
-        return false;
-    }
-}
-
-async function createPost(user, text, image) {
-    try {
-        await pool.query(
-            `INSERT INTO kaffit_app.posts("user", "text", "image")
-            VALUES ($1, $2, $3)`,
-            [user, text, image]
-        );
-    } catch(err) {
-        console.log(err);
-        return false;
-    }
-}
-
-module.exports.createComment = createComment;
-module.exports.getPost = getPost;
-module.exports.createPost = createPost;
-module.exports.getLatestPosts = getLatestPosts;
-module.exports.getPost = getPost;
-module.exports.getPpFormat = getPpFormat;
-module.exports.getComments = getComments;
+module.exports = { latestPosts, post, comments, createComment, createPost }

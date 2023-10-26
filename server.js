@@ -3,12 +3,14 @@ require("dotenv").config();
 const express = require('express');
 const app = express()
 const userApi = require('./userStatements')
-const contentApi = require('./contentStatements')
+const content = require('./contentStatements')
 const PORT = process.env.PORT || 10000;
 const flash = require("express-flash");
 const session = require("express-session");
 const passport = require("passport");
 const fileUpload = require('express-fileupload');
+const uuid = require("uuid");
+const crypto = require("crypto");
 
 const initPassport = require('./passportConfig');
 initPassport(passport);
@@ -48,6 +50,13 @@ app.get('/feed', checkNotAuthenticated, (req, res) => {
     res.sendFile('feed.html', {root: 'views'});
 });
 
+app.get('/petite-vue.js', checkNotAuthenticated, (req, res) => {
+    /*for(media in theAlgorithm.getLatestPosts()) {
+        
+    }*/
+    res.sendFile('petite-vue.iife.js', {root: 'node_modules/petite-vue/dist'});
+});
+
 app.get('/createpost', checkNotAuthenticated, (req, res) => {
     res.sendFile('createpost.html', {root: 'views'});
 });
@@ -60,33 +69,35 @@ app.post('/createpost', checkNotAuthenticated, (req, res) => {
         const { image } = req.files;
         console.log(image);
         if(image && image.mimetype.split('/')[0] === "image") {
-            const format = image.mimetype.split('/')[1]; //select after the / of e.g. image/png
-            const checksum = image.md5;
+            const format = image.mimetype.split('/')[1];
+            const hash = crypto.createHash('sha256'); // Create a SHA-256 hash
+
+            hash.update(image.data);
+
+            const checksum = hash.digest('hex');
             imagelink = `${checksum}.${format}`;
             console.log(imagelink);
-            image.mv(__dirname + '/media/images/' + imagelink)
-        
-        } else {
-            const image = null;
+            image.mv(__dirname + '/media/images/' + imagelink);
         }
     } catch(error) {
     }
     (async () => {
-        await contentApi.createPost(req.user.uuid, req.body.textArea, imagelink);
+        await content.createPost.run(uuid.v4(), req.user.uuid, req.body.textArea, imagelink);
     })();
     return res.redirect("/feed");
 });
 
 app.post('/comment/:post', checkNotAuthenticated, (req, res) => {
     (async () => {
-        contentApi.createComment(req.user.uuid, req.params.post, req.body.textArea);
+        content.createComment.run(req.user.uuid, req.params.post, req.body.textArea);
     })()
     res.redirect(`/post?id=${req.params.post}`);
 });
 
-app.get('/api/feed', checkNotAuthenticated, (req, res) => {
+app.get('/api/feed/:page', checkNotAuthenticated, (req, res) => {
     (async () => {
-        rows = await contentApi.getLatestPosts();
+        rows = await content.latestPosts.all(req.params.page);
+        console.log(rows);
         res.send(rows)
     })();
     //res.send( { uuid: 9999999, text: "Hallo welt " });
@@ -95,7 +106,7 @@ app.get('/api/feed', checkNotAuthenticated, (req, res) => {
 app.get('/api/user/:handle', checkNotAuthenticated, (req, res) => {
     try {
         (async () => {
-            row = await userApi.getUser(req.params.handle);
+            row = await userApi.getUserByHandle.get(req.params.handle);
             res.send(row)
         })();
     } catch(error) {
@@ -106,7 +117,7 @@ app.get('/api/user/:handle', checkNotAuthenticated, (req, res) => {
 app.get('/api/post/:id', checkNotAuthenticated, (req, res) => {
     try {
         (async () => {
-            row = await contentApi.getPost(req.params.id);
+            row = await content.post.get(req.params.id);
             res.send(row)
         })();
     } catch(error) {
@@ -117,7 +128,7 @@ app.get('/api/post/:id', checkNotAuthenticated, (req, res) => {
 app.get('/api/comments/:post', checkNotAuthenticated, (req, res) => {
     try {
         (async () => {
-            row = await contentApi.getComments(req.params.post);
+            row = await content.comments.all(req.params.post);
             res.send(row)
         })();
     } catch(error) {
@@ -141,7 +152,7 @@ app.get('/image/:file', checkNotAuthenticated, (req, res) => {
 app.get('/profilepictures/:handle', checkNotAuthenticated, (req, res) => {
     (async () => {
         try {
-            let user = await userApi.getUserByHandle(req.params.handle);
+            let user = await userApi.getUserByHandle.get(req.params.handle);
             console.log(user.uuid);
             try {
                 res.sendFile(`${user.uuid}`, {root: 'media/profilepictures'});

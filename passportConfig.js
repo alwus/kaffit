@@ -1,12 +1,12 @@
 const LocalStrategy = require("passport-local").Strategy;
-const { pool } = require('./dbConfig');
+const { db } = require('./dbConfig');
 const userApi = require('./userStatements');
 const bcyrpt = require("bcrypt");
 
 function initialize (passport) {
     const authenticateUser = (handle, password, done) => {
         (async () => {
-            const user = await userApi.loginSuccess(handle, password);
+            const user = await userApi.loginSuccess.get(handle, password);
             console.log(user);
             if(user) {
                 console.log("Authentication worked");
@@ -30,7 +30,7 @@ function initialize (passport) {
 
     passport.deserializeUser((id, done) => {
         (async () => {
-            const user = await userApi.getUserByUuid(id);
+            const user = await userApi.getUserByUuid.get(id);
             return done(null, user);
         })()
     });

@@ -34,14 +34,25 @@
                 return fullSize ? "100%" : "160px";
             }
 
+            function fetchPosts(page, p) {
+                fetch(`/api/feed/${page}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        p = data;
+                    });
+            }
+
             createApp({
                 posts: [],
+                currentPage: 1,
+                maxPage: 5,
+                fetchPosts,
                 get loginorprofile() {
                     return 'Login'
                 },
                 get fetchposts() {
                     let res;
-                    fetch("/api/feed")
+                    fetch("/api/feed/1")
                         .then(res => res.json())
                         .then(data => {
                             this.posts = data;
@@ -83,5 +94,24 @@
                     <div class="col" v-scope="Post({ uuid: post.uuid, handle: post.handle, text: post.text, timestamp: post.timestamp, image: post.image })"></div>
                 </div>
             </main>
+            <nav aria-label="Page navigation example">
+                <ul class="pagination justify-content-center pt-3">
+                    <li class="page-item">
+                        <a class="page-link" href="#" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                    <li class="page-item" :class="{ active : n == currentPage }" v-for="n in maxPage">
+                        <a class="page-link" href="#" @click="fetchPosts( n, posts )">
+                            {{ n }}
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="#" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
     </body>
 </html>

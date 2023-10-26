@@ -1,68 +1,17 @@
-const { pool } = require('./dbConfig');
+const { db } = require('./dbConfig');
 
-async function loginSuccess(handle, password) {
-    try {
-        const res = await pool.query(
-            `SELECT * FROM kaffit_app.users
-            WHERE handle = $1
-            AND password = $2`,
-            [handle, password]
-        )
-        if(res.rows.length > 0) {
-            console.log(res.rows[0]);
-            return res.rows[0];
-        } else {
-            console.log('no rows');
-            return false;
-        }
-    } catch(err) {
-        console.log(err);
-        return false;
-    }
-}
+const loginSuccess = db.prepare(
+    `SELECT * FROM users
+    WHERE handle = ?
+    AND password = ?`,
+);
 
-async function getUserByUuid(uuid) {
-    try {
-        const res = await pool.query(
-            `SELECT * FROM kaffit_app.users WHERE uuid = $1`,
-            [uuid],
-        )
-        return res.rows[0];
-    } catch(err) {
-        console.log(err);
-        return false;
-    }
-}
+const getUserByUuid = db.prepare(
+    `SELECT * FROM users WHERE uuid = ?`,
+);
 
-async function getUserByHandle(handle) {
-    try {
-        const res = await pool.query(
-            `SELECT * FROM kaffit_app.users WHERE handle = $1`,
-            [handle],
-        )
-        return res.rows[0];
-    } catch(err) {
-        console.log(err);
-        return false;
-    }
-}
+const getUserByHandle = db.prepare(
+    `SELECT * FROM users WHERE handle = ?`,
+);
 
-async function setPpFormat(uuid, format) {
-    try {
-        const res = await pool.query(
-            `UPDATE kaffit_app.users
-            SET ppformat = $2
-            WHERE uuid = $1`,
-            [uuid, format],
-        )
-        return res.rows[0];
-    } catch(err) {
-        console.log(err);
-        return false;
-    }
-}
-
-module.exports.loginSuccess = loginSuccess;
-module.exports.getUserByUuid = getUserByUuid;
-module.exports.getUserByHandle = getUserByHandle;
-module.exports.setPpFormat = setPpFormat;
+module.exports = { loginSuccess, getUserByUuid, getUserByHandle };
